@@ -112,7 +112,7 @@ could set this to `2' to start headings at level 3."
     (diary-sexpexample-block . (lambda (&rest args) (ox-jira--not-implemented 'diary-sexpexample-block)))
     (drawer . (lambda (&rest args) (ox-jira--not-implemented 'drawer)))
     (dynamic-block . (lambda (&rest args) (ox-jira--not-implemented 'dynamic-block)))
-    (entity . (lambda (&rest args) (ox-jira--not-implemented 'entity)))
+    (entity . ox-jira-entity)
     (example-block . ox-jira-example-block)
     (export-block . (lambda (&rest args) (ox-jira--not-implemented 'export-block)))
     (export-snippet . (lambda (&rest args) (ox-jira--not-implemented 'export-snippet)))
@@ -251,10 +251,10 @@ information."
 CONTENTS is the contents of the headline, as a string.  INFO is
 the plist used as a communication channel."
   (let* ((headline-info (if (eql ox-jira-override-headline-offset nil)
-			    info
-			  (plist-put nil :headline-offset ox-jira-override-headline-offset)))
-	 (level (org-export-get-relative-level headline headline-info))
-	 (title (org-export-data-with-backend
+                            info
+                          (plist-put nil :headline-offset ox-jira-override-headline-offset)))
+         (level (org-export-get-relative-level headline headline-info))
+         (title (org-export-data-with-backend
                  (org-element-property :title headline)
                  'jira info))
          (todo (and (plist-get info :with-todo-keywords)
@@ -468,6 +468,14 @@ CONTENTS is nil. INFO is a plist holding contextual information."
                ((inactive inactive-range) "_\\%s_")
                (otherwise "_%s_"))))
     (format fmt value)))
+
+(defun ox-jira-entity (entity _contents info)
+  "Transcode an ENTITY object from Org to JIRA.
+CONTENTS is nil.  INFO is a plist used as a communication channel."
+  (let ((ent (org-element-property :name entity)))
+    (or (org-entity-get-representation ent) ;; Get entity’s standard representation.
+        (org-entity-get-transcode ent 'html) ;; Fallback to HTML encoding if not found.
+        ent))) ;; Just use the entity name if no mapping is found.
 
 ;;;###autoload
 (defun ox-jira-export-as-jira
