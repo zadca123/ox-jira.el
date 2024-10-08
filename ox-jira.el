@@ -319,12 +319,6 @@ contextual information."
        (format "*%s*: " tag))
      contents)))
 
-(defun ox-jira-radio-target (radio-target contents info)
-  "Transcode a RADIO-TARGET object from Org to JIRA.
-CONTENTS is nil. INFO is a plist holding contextual information."
-  (let ((value (org-element-property :value radio-target)))
-    (format "{anchor:%s}" value)))
-
 (defun ox-jira-link (link desc info)
   "Transcode a LINK object from Org to JIRA.
 
@@ -484,6 +478,12 @@ CONTENTS is nil.  INFO is a plist used as a communication channel."
     (or (org-entity-get-representation ent) ;; Get entity’s standard representation.
         (org-entity-get-transcode ent 'html) ;; Fallback to HTML encoding if not found.
         ent))) ;; Just use the entity name if no mapping is found.
+
+(defun ox-jira-radio-target (radio-target contents info)
+  "Transcode a RADIO-TARGET object from Org to JIRA.
+CONTENTS is nil. INFO is a plist holding contextual information."
+  (let ((value (org-element-property :value radio-target)))
+    (format "{anchor:%s}" value)))
 
 ;;;###autoload
 (defun ox-jira-export-as-jira
