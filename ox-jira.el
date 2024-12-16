@@ -603,8 +603,12 @@ CONTENTS is nil. INFO is a plist holding contextual information."
   "Transcode an ENTITY object from Org to JIRA.
 CONTENTS is nil.  INFO is a plist used as a communication channel."
   (let ((ent (org-element-property :name entity)))
-    (or (org-entity-get-representation ent) ;; Get entity’s standard representation.
-        (org-entity-get-transcode ent 'html) ;; Fallback to HTML encoding if not found.
+    (message ent)
+    (message (org-entity-get ent))
+    (message (org-latex-entity ent))
+    (message (org-html-entity ent))
+    (or (org-entity-get ent) ;; Get entity’s standard representation.
+        (org-latex-entity ent) ;; Fallback to HTML encoding if not found.
         ent))) ;; Just use the entity name if no mapping is found.
 
 ;;;###autoload
