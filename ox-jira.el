@@ -453,19 +453,32 @@ CONTENTS is the text with plain-list markup. INFO is a plist holding
 contextual information."
   contents)
 
+
 ;; This is text with no markup, but we have to escape certain
 ;; characters to avoid tripping up JIRA. In particular:
 
 ;; - ={= :: Introduces macros
 ;; - =[= :: Introduces links
 
-(defun ox-jira-plain-text (text info)
-  "Transcode TEXT from Org to JIRA.
-TEXT is the string to transcode. INFO is a plist holding
-contextual information."
+(defun ox-jira-transcode-raw-brackets (text)
+  "Transcode TEXT from Org to JIRA. TEXT is the string to transcode.
+INFO is a plist holding contextual information."
   (replace-regexp-in-string "\\([[{]\\)"
-                            '(lambda (p) (format "\\\\%s" p))
-                            text))
+                            '(lambda (p) (format "\\\\%s" p)) text))
+
+(defun ox-jira-transcode-mentions (text)
+  "Transcode TEXT from Org to JIRA. Example: @john to [~john]. The
+@something is nothing special markup in org mode, but I think its
+useful feature."
+  (replace-regexp-in-string "@\\([a-z]+\\)" "[~\\1]" text))
+
+(defun ox-jira-plain-text (text info)
+  "Transcode TEXT from Org to JIRA. Wrapper function to run
+ multiple transcoders."
+  (let* ((text (ox-jira-transcode-raw-brackets text))
+         (text (ox-jira-transcode-mentions text)))
+    text))
+
 ;; Paragraphs are grouped into sections. I've not found any mention in
 ;; the Org documentation, but it appears to be essential for any
 ;; export to happen. I've essentially cribbed this from =ox-latex.el=.
